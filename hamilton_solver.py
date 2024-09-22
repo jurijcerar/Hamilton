@@ -37,17 +37,37 @@ class HamiltonSolver:
     def full_encoding(self):
         n = len(self.G)
         
-        self.clauses = [
+        clauses = [
             *constraints.successor_constraint_1(self),
             *constraints.successor_constraint_2(self),
             *constraints.successor_constraint_3(self),
             *constraints.successor_constraint_4(self),
+            *constraints.successor_mutual_exclusion_constraints(self),
+            #*constraints.ordering_mutual_exclusion_constraints(self),
             *constraints.optimized_ordering_constraint_1(self, n),
             *constraints.ordering_constraint_2(self, n),
             *constraints.ordering_constraint_3(self, n),
-            *constraints.optimized_ordering_constraint_4(self, n),
+            *constraints.ordering_constraint_4(self, n),
             *constraints.optimized_relationship_constraint(self)
         ]
+
+        #unique_clauses = list(map(list, set(map(tuple, clauses))))
+
+        # Remove duplicate clauses
+        seen = set()
+        unique_clauses = []
+
+        for clause in clauses:
+            sorted_clause = tuple(sorted(clause))
+            
+            if sorted_clause not in seen:
+                seen.add(sorted_clause)
+                unique_clauses.append(clause)
+        
+        self.clauses = unique_clauses
+
+        test = self.decode_encoding(self.clauses)
+        print(test)
     
     def decode_solution(self, solution):
         # Create a reverse map from value to key
@@ -61,6 +81,30 @@ class HamiltonSolver:
         ]
         
         return true_variables
+    
+    def decode_encoding(self, encoding):
+        """
+        Decodes the encoding (clauses) to a more human-readable form.
+        It goes through each clause and each variable within the clause.
+        """
+        # Create a reverse map from value to key
+        reverse_map = {v: k for k, v in self.variable_map.items()}
+
+        decoded_encoding = []
+        for clause in encoding:
+            decoded_clause = []
+            for val in clause:
+                # Get the original variable name from reverse map
+                var_name = reverse_map.get(abs(val), f"UNKNOWN_{abs(val)}")
+                # Add negation symbol if the variable is negative
+                if val < 0:
+                    decoded_clause.append(f"-{var_name}")
+                else:
+                    decoded_clause.append(var_name)
+            decoded_encoding.append(decoded_clause)
+        
+        return decoded_encoding
+
 
     def solve_hamilton(self):
 
@@ -74,7 +118,7 @@ class HamiltonSolver:
 
         return cycle
     
-    def validate(self, solution):
+''' def validate(self, solution):
 
         n = len(self.G)
 
@@ -119,8 +163,7 @@ class HamiltonSolver:
             visited[current_vertex] = True
             current_vertex = successor
         
-        # The final step should loop back to the starting vertex (0)
         return current_vertex == 0
-
+    '''
 
     

@@ -25,6 +25,10 @@ def successor_constraint_4(solver):
             for j in dom_var
             for k in dom_var if j != k]
 
+def successor_mutual_exclusion_constraints(solver):
+    return [[add_to_map(solver, f"s_{i}{j}", -1), add_to_map(solver, f"s_{j}{i}", -1)]
+            for i, dom_var in enumerate(solver.G)
+            for j in dom_var]
 
 def ordering_constraint_1(solver, n):
     return [[add_to_map(solver,f"o_{i}{j}", -1), add_to_map(solver,f"o_{j}{k}", -1), add_to_map(solver,f"o_{i}{k}", 1)]
@@ -45,6 +49,7 @@ def optimized_ordering_constraint_1(solver, n):
         for j in range(i + 1, n)
         for k in range(j + 1, n)
     ]
+
 
 def ordering_constraint_2(solver, n):
     return [[add_to_map(solver,f"o_{i}{j}", -1), add_to_map(solver,f"o_{j}{i}", -1)]
@@ -71,7 +76,10 @@ def optimized_ordering_constraint_4(solver, n):
         for i in range(1, l)
     ]
 
-
+def ordering_mutual_exclusion_constraints(solver):
+    return [[add_to_map(solver, f"o_{i}{j}", -1), add_to_map(solver, f"o_{j}{i}", -1)]
+            for i, dom_var in enumerate(solver.G)
+            for j in dom_var]
 
 def relationship_constraint(solver):
     return [
@@ -88,19 +96,3 @@ def optimized_relationship_constraint(solver):
         for j in dom_var
         if i < j
     ]
-
-
-'''def decode_solution1(solution):
-    # Create a reverse map from value to key
-    reverse_map = {v: k for k, v in variable_map.items()}
-    
-    # Decode each sublist in the solution
-    decoded_solution = [
-        [
-            f"-{reverse_map[abs(val)]}" if val < 0 else reverse_map[val]
-            for val in sublist if abs(val) in reverse_map
-        ]
-        for sublist in solution
-    ]
-    
-    return decoded_solution'''
