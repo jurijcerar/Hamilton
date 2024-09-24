@@ -43,7 +43,6 @@ class HamiltonSolver:
             *constraints.successor_constraint_3(self),
             *constraints.successor_constraint_4(self),
             *constraints.successor_mutual_exclusion_constraints(self),
-            #*constraints.ordering_mutual_exclusion_constraints(self),
             *constraints.optimized_ordering_constraint_1(self, n),
             *constraints.ordering_constraint_2(self, n),
             *constraints.ordering_constraint_3(self, n),
