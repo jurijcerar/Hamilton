@@ -44,6 +44,7 @@ class HamiltonSolver:
             *constraints.successor_constraint_4(self),
             *constraints.successor_mutual_exclusion_constraints(self),
             *constraints.optimized_ordering_constraint_1(self, n),
+            #*constraints.ordering_constraint_1(self, n),
             *constraints.ordering_constraint_2(self, n),
             *constraints.ordering_constraint_3(self, n),
             *constraints.ordering_constraint_4(self, n),
@@ -115,54 +116,45 @@ class HamiltonSolver:
         # Decode the solution
         cycle = self.decode_solution(solution)
 
+        print("Is solution valid hamilton graph? ", is_valid_hamiltonian(self.G, cycle))
+
         return cycle
+
+def is_valid_hamiltonian(graph, solution):
+
+    edges = parse_solution(solution)
+
+    # Ensure that all vertices are visited
+    visited_vertices = set()
+    for u, v in edges:
+        visited_vertices.add(u)
+        visited_vertices.add(v)
     
-''' def validate(self, solution):
+    # Ensure that all vertices in the graph are visited
+    if len(visited_vertices) != len(graph):
+        return False
 
-        n = len(self.G)
+    # Check if each edge in the solution exists in the graph
+    for u, v in edges:
+        if v-1 not in graph[u-1]:  # Adjust indexing (1-based to 0-based)
+            return False
 
-        # Separate s_ij and o_ij variables
-        s_array = [v for v in solution if v.startswith('s_')]
-        o_array = [v for v in solution if v.startswith('o_')]
+    # Check if it's a Hamiltonian circuit or path
+    # The last edge must return to the starting vertex
+    if edges[0][0] == edges[-1][1]:  # Circuit
+        return True
+    else:
+        # Ensure no vertices are revisited (for a path, not a circuit)
+        return len(edges) == len(graph)
 
-        # Step 1: Check if each vertex appears exactly once in s_array as both i and j
-        s_counts = {}
-        
-        for s in s_array:
-            i, j = int(s[2]), int(s[3])
-            s_counts[i] = s_counts.get(i, 0) + 1
-            s_counts[j] = s_counts.get(j, 0) + 1
-        
-        # Each vertex must appear exactly twice (once as a successor and once as a predecessor)
-        for vertex in range(n):
-            if s_counts.get(vertex, 0) != 2:
-                return False
-        
-        # Step 2: Verify the ordering variables following the cycle
-        visited = [False] * n
-        current_vertex = 0
-        
-        for _ in range(n):
-            # Find the successor of the current vertex
-            successor = None
-            for s in s_array:
-                i, j = int(s[2]), int(s[3])
-                if i == current_vertex:
-                    successor = j
-                    break
-            
-            if successor is None or visited[successor]:
-                return False
-            
-            # Check the corresponding ordering variable o_ij
-            o_var = f"o_{current_vertex}{successor}"
-            if o_var not in o_array:
-                return False
-            
-            visited[current_vertex] = True
-            current_vertex = successor
-        
-        return current_vertex == 0
-    '''
+def parse_solution(solution):
+        edges = []
+        for edge in solution:
+            if edge.startswith('s_'):
+                vertices = edge[2:].split('.')
+                u = int(vertices[0]) 
+                v = int(vertices[1])  
+                edges.append((u, v))  
+        return edges
 
     
