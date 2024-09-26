@@ -67,7 +67,7 @@ class HamiltonSolver:
         self.clauses = unique_clauses
 
         test = self.decode_encoding(self.clauses)
-        print(test)
+        #print(test)
     
     def decode_solution(self, solution):
         # Create a reverse map from value to key
@@ -114,9 +114,13 @@ class HamiltonSolver:
             return "No"
 
         # Decode the solution
-        cycle = self.decode_solution(solution)
+        dec_solution = self.decode_solution(solution)
 
-        print("Is solution valid hamilton graph? ", is_valid_hamiltonian(self.G, cycle))
+        edges = parse_solution(dec_solution)
+
+        cycle = extract_cycle(edges)
+
+        print("Is solution valid hamilton graph? ", is_valid_hamiltonian(self.G, dec_solution))
 
         return cycle
 
@@ -158,3 +162,23 @@ def parse_solution(solution):
         return edges
 
     
+def extract_cycle(edges):
+    # Create a dictionary to map nodes to their connected neighbors
+    graph = {}
+    for u, v in edges:
+        graph[u] = v
+
+    # Start from node 1 (or any other node in the graph)
+    start_node = edges[0][0]
+    cycle = [start_node]
+
+    # Traverse the graph until we come back to the starting node
+    current_node = graph[start_node]
+    while current_node != start_node:
+        cycle.append(current_node)
+        current_node = graph[current_node]
+
+    # Finally, append the start_node to complete the cycle
+    cycle.append(start_node)
+
+    return cycle
