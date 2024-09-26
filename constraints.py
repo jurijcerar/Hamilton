@@ -33,7 +33,7 @@ def successor_mutual_exclusion_constraints(solver):
             for j in dom_var]
 
 
-def optimized_ordering_constraint_1(solver, n):
+def optimized_ordering_constraint_1(solver, n): #using point 3
     return [
         [add_to_map(solver, f"o_{i+1}.{j+1}", -1), add_to_map(solver, f"o_{j+1}.{k+1}", -1), add_to_map(solver, f"o_{i+1}.{k+1}", 1)]
         for i in range(n)

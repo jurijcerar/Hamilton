@@ -93,10 +93,8 @@ class HamiltonSolver:
         decoded_encoding = []
         for clause in encoding:
             decoded_clause = []
-            for val in clause:
-                # Get the original variable name from reverse map
+            for val in clause:  
                 var_name = reverse_map.get(abs(val), f"UNKNOWN_{abs(val)}")
-                # Add negation symbol if the variable is negative
                 if val < 0:
                     decoded_clause.append(f"-{var_name}")
                 else:
