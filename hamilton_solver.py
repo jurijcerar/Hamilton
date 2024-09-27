@@ -1,5 +1,6 @@
 import constraints
-import pycosat
+#import pycosat
+from pysat.solvers import Cadical103
 
 class HamiltonSolver:
 
@@ -37,7 +38,7 @@ class HamiltonSolver:
     def full_encoding(self):
         n = len(self.G)
         
-        clauses = [
+        self.clauses = [
             *constraints.successor_constraint_1(self),
             *constraints.successor_constraint_2(self),
             *constraints.successor_constraint_3(self),
@@ -54,7 +55,7 @@ class HamiltonSolver:
         #unique_clauses = list(map(list, set(map(tuple, clauses))))
 
         # Remove duplicate clauses
-        seen = set()
+        '''seen = set()
         unique_clauses = []
 
         for clause in clauses:
@@ -64,9 +65,9 @@ class HamiltonSolver:
                 seen.add(sorted_clause)
                 unique_clauses.append(clause)
         
-        self.clauses = unique_clauses
+        self.clauses = unique_clauses'''
 
-        test = self.decode_encoding(self.clauses)
+        #test = self.decode_encoding(self.clauses)
         #print(test)
     
     def decode_solution(self, solution):
@@ -106,21 +107,30 @@ class HamiltonSolver:
 
     def solve_hamilton(self):
 
-        solution = pycosat.solve(self.clauses)
+        '''solution = pycosat.solve(self.clauses)
 
         if solution == "UNSAT":
-            return "No"
+            return "No"'''
+        
+        with Cadical103(bootstrap_with=self.clauses) as l:
 
-        # Decode the solution
-        dec_solution = self.decode_solution(solution)
+            if l.solve() == False:
 
-        edges = parse_solution(dec_solution)
+                return "UNSAT"
 
-        cycle = extract_cycle(edges)
+            else:
 
-        print("Is solution valid hamilton graph? ", is_valid_hamiltonian(self.G, dec_solution))
+                solution = l.get_model()
+                # Decode the solution
+                dec_solution = self.decode_solution(solution)
 
-        return cycle
+                edges = parse_solution(dec_solution)
+
+                cycle = extract_cycle(edges)
+
+                print("Is solution valid hamilton graph? ", is_valid_hamiltonian(self.G, dec_solution))
+
+                return cycle
 
 def is_valid_hamiltonian(graph, solution):
 
